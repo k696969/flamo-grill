@@ -378,3 +378,266 @@ if (canvas) {
 
   animate();
 }
+
+const PRODUCT = {
+  id: "flamo-grill",
+  name: "Flamo Grill",
+  subtitle: "Mobiler Grill fuer Hilfsgebiete",
+  price: 80,
+};
+
+const formatEuro = (amount) => `${amount.toLocaleString("de-DE")} EUR`;
+
+const cartState = {
+  items: [],
+};
+
+const STORAGE_KEY = "flamo-grill-cart";
+
+const loadCart = () => {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return;
+    const data = JSON.parse(raw);
+    if (Array.isArray(data?.items)) {
+      cartState.items = data.items.filter(
+        (item) => item && item.id === PRODUCT.id && Number.isFinite(item.quantity) && item.quantity > 0,
+      );
+    }
+  } catch {
+    cartState.items = [];
+  }
+};
+
+const saveCart = () => {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ items: cartState.items }));
+  } catch {
+    // ignore quota / privacy mode
+  }
+};
+
+const cartCount = () => cartState.items.reduce((sum, item) => sum + item.quantity, 0);
+const cartSubtotal = () => cartState.items.reduce((sum, item) => sum + item.quantity * item.price, 0);
+
+const cartCountEl = document.querySelector("#cartCount");
+const cartOverlay = document.querySelector("#cartOverlay");
+const cartBody = document.querySelector("#cartBody");
+const cartSubtotalEl = document.querySelector("#cartSubtotal");
+const cartCheckoutBtn = document.querySelector("#cartCheckout");
+const cartOpenBtn = document.querySelector("#cartOpen");
+const cartCloseBtn = document.querySelector("#cartClose");
+const checkoutModal = document.querySelector("#checkoutModal");
+const checkoutCloseBtn = document.querySelector("#checkoutClose");
+const checkoutForm = document.querySelector("#checkoutForm");
+const checkoutSubtotalEl = document.querySelector("#checkoutSubtotal");
+const checkoutTotalEl = document.querySelector("#checkoutTotal");
+const successModal = document.querySelector("#successModal");
+const successCloseBtn = document.querySelector("#successClose");
+const orderNumberEl = document.querySelector("#orderNumber");
+const cardNumberInput = document.querySelector("#cardNumber");
+const cardExpiryInput = document.querySelector("#cardExpiry");
+
+const refreshIcons = () => window.lucide?.createIcons();
+
+const renderCart = () => {
+  if (!cartBody) return;
+  const total = cartSubtotal();
+  const count = cartCount();
+
+  if (cartCountEl) {
+    cartCountEl.textContent = String(count);
+    cartCountEl.classList.toggle("has-items", count > 0);
+  }
+
+  if (cartState.items.length === 0) {
+    cartBody.innerHTML = `
+      <div class="cart-empty">
+        <i data-lucide="shopping-bag"></i>
+        <p>Dein Warenkorb ist leer.</p>
+      </div>
+    `;
+  } else {
+    cartBody.innerHTML = cartState.items
+      .map(
+        (item) => `
+          <article class="cart-item" data-id="${item.id}">
+            <div class="cart-item-thumb" aria-hidden="true">
+              <i data-lucide="flame"></i>
+            </div>
+            <div class="cart-item-info">
+              <h3>${item.name}</h3>
+              <p>${item.subtitle}</p>
+              <strong>${formatEuro(item.price)}</strong>
+            </div>
+            <div class="cart-item-actions">
+              <div class="qty">
+                <button type="button" data-qty="-1" aria-label="Anzahl verringern">&minus;</button>
+                <span aria-live="polite">${item.quantity}</span>
+                <button type="button" data-qty="1" aria-label="Anzahl erhoehen">+</button>
+              </div>
+              <button type="button" class="link-button" data-remove aria-label="Aus dem Warenkorb entfernen">
+                Entfernen
+              </button>
+            </div>
+          </article>
+        `,
+      )
+      .join("");
+  }
+
+  if (cartSubtotalEl) cartSubtotalEl.textContent = formatEuro(total);
+  if (checkoutSubtotalEl) checkoutSubtotalEl.textContent = formatEuro(total);
+  if (checkoutTotalEl) checkoutTotalEl.textContent = formatEuro(total);
+  if (cartCheckoutBtn) cartCheckoutBtn.disabled = count === 0;
+
+  refreshIcons();
+};
+
+const addToCart = () => {
+  const existing = cartState.items.find((item) => item.id === PRODUCT.id);
+  if (existing) {
+    existing.quantity += 1;
+  } else {
+    cartState.items.push({ ...PRODUCT, quantity: 1 });
+  }
+  saveCart();
+  renderCart();
+  openCart();
+};
+
+const updateQty = (id, delta) => {
+  const item = cartState.items.find((entry) => entry.id === id);
+  if (!item) return;
+  item.quantity += delta;
+  if (item.quantity <= 0) {
+    cartState.items = cartState.items.filter((entry) => entry.id !== id);
+  }
+  saveCart();
+  renderCart();
+};
+
+const removeFromCart = (id) => {
+  cartState.items = cartState.items.filter((entry) => entry.id !== id);
+  saveCart();
+  renderCart();
+};
+
+const openOverlay = (element) => {
+  if (!element) return;
+  element.hidden = false;
+  requestAnimationFrame(() => element.classList.add("is-open"));
+  document.body.classList.add("no-scroll");
+  refreshIcons();
+};
+
+const closeOverlay = (element) => {
+  if (!element) return;
+  element.classList.remove("is-open");
+  setTimeout(() => {
+    element.hidden = true;
+    if (!document.querySelector(".cart-overlay.is-open, .modal.is-open")) {
+      document.body.classList.remove("no-scroll");
+    }
+  }, 220);
+};
+
+const openCart = () => openOverlay(cartOverlay);
+const closeCart = () => closeOverlay(cartOverlay);
+const openCheckout = () => {
+  closeCart();
+  renderCart();
+  openOverlay(checkoutModal);
+};
+const closeCheckout = () => closeOverlay(checkoutModal);
+
+const generateOrderNumber = () => {
+  const random = Math.floor(100000 + Math.random() * 900000);
+  return `FG-${random}`;
+};
+
+document.querySelectorAll("[data-add-to-cart]").forEach((button) => {
+  button.addEventListener("click", () => addToCart());
+});
+
+cartOpenBtn?.addEventListener("click", () => openCart());
+cartCloseBtn?.addEventListener("click", () => closeCart());
+cartOverlay?.addEventListener("click", (event) => {
+  if (event.target === cartOverlay) closeCart();
+});
+
+cartBody?.addEventListener("click", (event) => {
+  const target = event.target.closest("button");
+  if (!target) return;
+  const itemEl = target.closest(".cart-item");
+  if (!itemEl) return;
+  const id = itemEl.dataset.id;
+  if (target.dataset.remove !== undefined) {
+    removeFromCart(id);
+  } else if (target.dataset.qty) {
+    updateQty(id, Number(target.dataset.qty));
+  }
+});
+
+cartCheckoutBtn?.addEventListener("click", () => {
+  if (cartState.items.length === 0) return;
+  openCheckout();
+});
+
+checkoutCloseBtn?.addEventListener("click", () => closeCheckout());
+checkoutModal?.addEventListener("click", (event) => {
+  if (event.target === checkoutModal) closeCheckout();
+});
+
+cardNumberInput?.addEventListener("input", (event) => {
+  const digits = event.currentTarget.value.replace(/\D/g, "").slice(0, 19);
+  event.currentTarget.value = digits.replace(/(.{4})/g, "$1 ").trim();
+});
+
+cardExpiryInput?.addEventListener("input", (event) => {
+  const digits = event.currentTarget.value.replace(/\D/g, "").slice(0, 4);
+  event.currentTarget.value = digits.length > 2 ? `${digits.slice(0, 2)}/${digits.slice(2)}` : digits;
+});
+
+checkoutForm?.addEventListener("submit", (event) => {
+  event.preventDefault();
+  if (!checkoutForm.checkValidity()) {
+    checkoutForm.reportValidity();
+    return;
+  }
+  const submitButton = checkoutForm.querySelector("#placeOrder");
+  if (submitButton) {
+    submitButton.disabled = true;
+    submitButton.innerHTML = '<i data-lucide="loader-2"></i> Wird verarbeitet ...';
+    refreshIcons();
+  }
+  setTimeout(() => {
+    if (orderNumberEl) orderNumberEl.textContent = generateOrderNumber();
+    cartState.items = [];
+    saveCart();
+    renderCart();
+    checkoutForm.reset();
+    closeCheckout();
+    openOverlay(successModal);
+    if (submitButton) {
+      submitButton.disabled = false;
+      submitButton.innerHTML = '<i data-lucide="lock"></i> Bestellung abschliessen';
+      refreshIcons();
+    }
+  }, 900);
+});
+
+successCloseBtn?.addEventListener("click", () => closeOverlay(successModal));
+successModal?.addEventListener("click", (event) => {
+  if (event.target === successModal) closeOverlay(successModal);
+});
+
+document.addEventListener("keydown", (event) => {
+  if (event.key !== "Escape") return;
+  if (successModal && !successModal.hidden) closeOverlay(successModal);
+  else if (checkoutModal && !checkoutModal.hidden) closeCheckout();
+  else if (cartOverlay && !cartOverlay.hidden) closeCart();
+});
+
+loadCart();
+renderCart();

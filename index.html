@@ -8,7 +8,7 @@
       name="description"
       content="Flamo Grill ist ein kompakter, leicht transportierbarer Grill fuer Hilfsgebiete. Preis: 80 Euro. Mit interaktiver 3D-Vorschau."
     />
-    <link rel="stylesheet" href="./styles.css?v=3" />
+    <link rel="stylesheet" href="./styles.css?v=4" />
   </head>
   <body>
     <a class="skip-link" href="#inhalt">Zum Inhalt springen</a>
@@ -24,6 +24,10 @@
         <a href="#preview">3D-Vorschau</a>
         <a href="#kontakt">Kontakt</a>
       </nav>
+      <button class="cart-button" id="cartOpen" type="button" aria-label="Warenkorb oeffnen" aria-haspopup="dialog">
+        <i data-lucide="shopping-cart"></i>
+        <span class="cart-count" id="cartCount" aria-live="polite">0</span>
+      </button>
     </header>
 
     <main id="inhalt">
@@ -41,13 +45,13 @@
             guenstig und ohne feste Infrastruktur zubereitet werden muessen.
           </p>
           <div class="hero-actions" aria-label="Wichtige Aktionen">
-            <a class="button primary" href="#preview">
+            <button class="button primary" type="button" data-add-to-cart>
+              <i data-lucide="shopping-cart"></i>
+              In den Warenkorb &middot; 80 EUR
+            </button>
+            <a class="button secondary" href="#preview">
               <i data-lucide="box"></i>
               3D ansehen
-            </a>
-            <a class="button secondary" href="mailto:Flammogrill@gmail.com">
-              <i data-lucide="mail"></i>
-              Anfrage senden
             </a>
           </div>
         </div>
@@ -226,13 +230,113 @@
         </div>
         <div class="contact-actions">
           <span class="price-pill">80 EUR pro Grill</span>
-          <a class="button primary" href="mailto:Flammogrill@gmail.com">
+          <button class="button primary" type="button" data-add-to-cart>
+            <i data-lucide="shopping-cart"></i>
+            In den Warenkorb
+          </button>
+          <a class="button secondary" href="mailto:Flammogrill@gmail.com">
             <i data-lucide="send"></i>
             Flammogrill@gmail.com
           </a>
         </div>
       </section>
     </main>
+
+    <div class="cart-overlay" id="cartOverlay" hidden>
+      <div class="cart-drawer" role="dialog" aria-modal="true" aria-labelledby="cart-title">
+        <div class="cart-head">
+          <h2 id="cart-title">Warenkorb</h2>
+          <button class="icon-button" id="cartClose" type="button" aria-label="Warenkorb schliessen">
+            <i data-lucide="x"></i>
+          </button>
+        </div>
+        <div class="cart-body" id="cartBody"></div>
+        <div class="cart-foot">
+          <div class="cart-totals">
+            <span>Zwischensumme</span>
+            <strong id="cartSubtotal">0 EUR</strong>
+          </div>
+          <p class="cart-note">
+            Demo-Shop: Es wird keine echte Zahlung durchgefuehrt und keine Bestellung ausgeloest.
+          </p>
+          <button class="button primary" id="cartCheckout" type="button" disabled>
+            <i data-lucide="credit-card"></i>
+            Zur Kasse
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal" id="checkoutModal" hidden>
+      <div class="modal-panel" role="dialog" aria-modal="true" aria-labelledby="checkout-title">
+        <div class="modal-head">
+          <h2 id="checkout-title">Kasse</h2>
+          <button class="icon-button" id="checkoutClose" type="button" aria-label="Kasse schliessen">
+            <i data-lucide="x"></i>
+          </button>
+        </div>
+        <div class="demo-banner" role="note">
+          <i data-lucide="info"></i>
+          <span>Demo-Kasse. Es werden keine Daten gespeichert und keine Zahlung verarbeitet.</span>
+        </div>
+        <form id="checkoutForm" class="checkout-form" novalidate>
+          <fieldset>
+            <legend>Versandadresse</legend>
+            <div class="form-row">
+              <label>Vorname<input name="firstName" autocomplete="given-name" required /></label>
+              <label>Nachname<input name="lastName" autocomplete="family-name" required /></label>
+            </div>
+            <label>E-Mail<input type="email" name="email" autocomplete="email" required /></label>
+            <label>Strasse und Hausnummer<input name="street" autocomplete="street-address" required /></label>
+            <div class="form-row">
+              <label class="zip">PLZ<input name="zip" autocomplete="postal-code" required pattern="\d{4,5}" /></label>
+              <label>Ort<input name="city" autocomplete="address-level2" required /></label>
+            </div>
+            <label>Land
+              <select name="country" autocomplete="country-name">
+                <option>Deutschland</option>
+                <option>Oesterreich</option>
+                <option>Schweiz</option>
+              </select>
+            </label>
+          </fieldset>
+          <fieldset>
+            <legend>Zahlung</legend>
+            <label>Karteninhaber<input name="cardName" autocomplete="cc-name" required /></label>
+            <label>Kartennummer<input name="cardNumber" id="cardNumber" inputmode="numeric" autocomplete="cc-number" placeholder="4242 4242 4242 4242" maxlength="23" required /></label>
+            <div class="form-row">
+              <label>Gueltig bis<input name="cardExpiry" id="cardExpiry" inputmode="numeric" autocomplete="cc-exp" placeholder="MM/JJ" maxlength="5" required /></label>
+              <label>CVC<input name="cardCvc" inputmode="numeric" autocomplete="cc-csc" placeholder="123" maxlength="4" required /></label>
+            </div>
+          </fieldset>
+          <div class="order-summary" aria-label="Bestelluebersicht">
+            <div><span>Zwischensumme</span><strong id="checkoutSubtotal">0 EUR</strong></div>
+            <div><span>Versand</span><strong>0 EUR</strong></div>
+            <div class="grand-total"><span>Gesamt</span><strong id="checkoutTotal">0 EUR</strong></div>
+          </div>
+          <button class="button primary" type="submit" id="placeOrder">
+            <i data-lucide="lock"></i>
+            Bestellung abschliessen
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <div class="modal" id="successModal" hidden>
+      <div class="modal-panel small" role="dialog" aria-modal="true" aria-labelledby="success-title">
+        <div class="success-icon" aria-hidden="true">
+          <i data-lucide="check-circle-2"></i>
+        </div>
+        <h2 id="success-title">Bestellung bestaetigt</h2>
+        <p>Vielen Dank! Deine Bestellnummer lautet <strong id="orderNumber">FG-000000</strong>.</p>
+        <p class="muted">
+          Hinweis: Dies ist ein Demo-Shop. Es wurde keine echte Zahlung durchgefuehrt und keine Ware versendet.
+        </p>
+        <button class="button primary" id="successClose" type="button">
+          Weiter stoebern
+        </button>
+      </div>
+    </div>
 
     <footer class="site-footer">
       <span>Flamo Grill</span>
@@ -248,6 +352,6 @@
         }
       }
     </script>
-    <script type="module" src="./main.js?v=3"></script>
+    <script type="module" src="./main.js?v=4"></script>
   </body>
 </html>
