@@ -3812,6 +3812,31 @@ body.checkout-open {
     font-style: italic;
 }
 
+/* Deckblatt (gescanntes Bild) */
+.docs-cover {
+    margin: 8px 0 0;
+    text-align: center;
+}
+
+.docs-cover img {
+    display: block;
+    width: 100%;
+    max-width: 480px;
+    height: auto;
+    margin: 0 auto;
+    border: 1px solid var(--border-strong);
+    border-radius: 6px;
+    box-shadow: var(--shadow-md);
+    background: #fff;
+}
+
+.docs-cover figcaption {
+    margin-top: 12px;
+    color: var(--gray);
+    font-size: 0.84rem;
+    font-style: italic;
+}
+
 /* Handschriftliche Unterschriften (Protokolle) */
 .docs-protocol .docs-signature-name {
     margin-bottom: 6px;
@@ -4102,5 +4127,11 @@ body.checkout-open {
 
     .docs-sign {
         color: #1b2a4a !important;
+    }
+
+    .docs-cover img {
+        box-shadow: none;
+        border: 1px solid #999;
+        max-width: 380px;
     }
 }
