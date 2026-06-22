@@ -3812,6 +3812,46 @@ body.checkout-open {
     font-style: italic;
 }
 
+/* Handschriftliche Unterschriften (Protokolle) */
+.docs-protocol .docs-signature-name {
+    margin-bottom: 6px;
+}
+
+.docs-sign {
+    display: inline-block;
+    margin: 0 0 -10px 6px;
+    line-height: 1;
+    color: #cdd6e6;
+    transform-origin: left bottom;
+    pointer-events: none;
+    user-select: none;
+    white-space: nowrap;
+}
+
+.sig-kaan {
+    font-family: 'Caveat', cursive;
+    font-size: 2rem;
+    transform: rotate(-3deg);
+}
+
+.sig-osman {
+    font-family: 'Dancing Script', cursive;
+    font-size: 1.7rem;
+    transform: rotate(-1deg);
+}
+
+.sig-berkay {
+    font-family: 'Satisfy', cursive;
+    font-size: 1.55rem;
+    transform: rotate(-4deg);
+}
+
+.sig-sarp {
+    font-family: 'Sacramento', cursive;
+    font-size: 1.85rem;
+    transform: rotate(-2deg);
+}
+
 /* Kundenkommunikation (Thread) */
 .docs-thread {
     display: grid;
@@ -4058,5 +4098,9 @@ body.checkout-open {
 
     .docs-signature-line {
         border-top-color: #000;
+    }
+
+    .docs-sign {
+        color: #1b2a4a !important;
     }
 }
