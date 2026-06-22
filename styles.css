@@ -3812,9 +3812,143 @@ body.checkout-open {
     font-style: italic;
 }
 
+/* Kundenkommunikation (Thread) */
+.docs-thread {
+    display: grid;
+    gap: 14px;
+    margin: 18px 0 8px;
+}
+
+.docs-message {
+    max-width: 90%;
+    padding: 14px 18px;
+    border: 1px solid var(--border-strong);
+    border-radius: 2px;
+}
+
+.docs-message.incoming {
+    justify-self: start;
+    background: rgba(255, 255, 255, 0.02);
+    border-left: 2px solid var(--gray);
+}
+
+.docs-message.outgoing {
+    justify-self: end;
+    background: rgba(255, 107, 53, 0.05);
+    border-left: 2px solid var(--primary);
+}
+
+.docs-message-head {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 6px 16px;
+    margin-bottom: 6px;
+}
+
+.docs-message-from {
+    color: var(--white);
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.docs-message-date {
+    color: var(--gray);
+    font-size: 0.78rem;
+    font-variant-numeric: tabular-nums;
+}
+
+.docs-message-subject {
+    margin: 0 0 6px !important;
+    color: var(--gray-light);
+    font-size: 0.92rem;
+    font-style: italic;
+}
+
+.docs-message p:last-child {
+    margin-bottom: 0 !important;
+}
+
+.docs-message p {
+    font-size: 0.93rem !important;
+    line-height: 1.6 !important;
+}
+
+/* Protokolle */
+.docs-protocol {
+    margin: 18px 0;
+    padding: 20px 22px;
+    border: 1px solid var(--border-strong);
+    border-radius: 2px;
+    background: rgba(255, 255, 255, 0.015);
+}
+
+.docs-protocol-meta {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px 28px;
+    padding-bottom: 14px;
+    margin-bottom: 14px;
+    border-bottom: 1px solid var(--border);
+}
+
+.docs-protocol-meta > div {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.docs-protocol-meta span {
+    color: var(--gray);
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+}
+
+.docs-protocol-meta strong {
+    color: var(--white);
+    font-size: 0.92rem;
+    font-weight: 500;
+}
+
+.docs-protocol-top {
+    margin: 0 0 8px !important;
+    font-size: 0.94rem !important;
+}
+
+.docs-protocol-top strong {
+    color: var(--white);
+}
+
+.docs-protocol-result {
+    margin: 12px 0 0 !important;
+    padding: 10px 14px;
+    background: rgba(255, 255, 255, 0.025);
+    border-left: 2px solid var(--primary);
+    font-size: 0.93rem !important;
+}
+
+.docs-protocol-result strong {
+    color: var(--white);
+}
+
+.docs-protocol .docs-signatures {
+    margin-top: 20px;
+    gap: 24px 40px;
+}
+
 @media (max-width: 720px) {
     .project-docs {
         padding: 70px 0 60px;
+    }
+
+    .docs-message {
+        max-width: 100%;
+    }
+
+    .docs-protocol-meta {
+        grid-template-columns: 1fr;
     }
 
     .project-docs .section-title {
@@ -3893,9 +4027,27 @@ body.checkout-open {
     .docs-conclusion,
     .docs-conclusion strong,
     .docs-note,
-    .docs-note strong {
+    .docs-note strong,
+    .docs-message,
+    .docs-message p,
+    .docs-message-from,
+    .docs-message-date,
+    .docs-message-subject,
+    .docs-protocol,
+    .docs-protocol-meta span,
+    .docs-protocol-meta strong,
+    .docs-protocol-top,
+    .docs-protocol-top strong,
+    .docs-protocol-result,
+    .docs-protocol-result strong {
         color: #000 !important;
         background: transparent !important;
+    }
+
+    .docs-message,
+    .docs-protocol {
+        border: 1px solid #999 !important;
+        page-break-inside: avoid;
     }
 
     .docs-table thead th,
